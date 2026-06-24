@@ -277,7 +277,7 @@ app.post("/api/claude", auth, (req, res) => {
     return res.status(500).json({ error: { message: "Falta ANTHROPIC_API_KEY en el archivo .env" } });
   }
   const body = JSON.stringify({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-6",
     max_tokens: req.body.max_tokens || 2000,
     system: req.body.system || "",
     messages: req.body.messages || [],
@@ -297,11 +297,23 @@ app.post("/api/claude", auth, (req, res) => {
     let data = "";
     apiRes.on("data", (chunk) => (data += chunk));
     apiRes.on("end", () => {
-      try { res.status(apiRes.statusCode).json(JSON.parse(data)); }
-      catch { res.status(500).json({ error: { message: "Respuesta inválida de la API" } }); }
+      try {
+        const parsed = JSON.parse(data);
+        // Si la API de Anthropic devolvió un error, lo registramos y reenviamos con detalle
+        if (apiRes.statusCode >= 400) {
+          console.error("Error de la API de Anthropic:", apiRes.statusCode, data);
+        }
+        res.status(apiRes.statusCode).json(parsed);
+      } catch {
+        console.error("Respuesta no-JSON de la API:", apiRes.statusCode, data.slice(0, 300));
+        res.status(500).json({ error: { message: "Respuesta invalida de la API (codigo " + apiRes.statusCode + ")" } });
+      }
     });
   });
-  apiReq.on("error", (err) => res.status(500).json({ error: { message: err.message } }));
+  apiReq.on("error", (err) => {
+    console.error("Error de conexion con Anthropic:", err.message);
+    res.status(500).json({ error: { message: "No se pudo conectar con la API: " + err.message } });
+  });
   apiReq.write(body);
   apiReq.end();
 });
