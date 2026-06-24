@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: fastfit
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false

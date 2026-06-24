@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+server/fastfit.db
+server/fastfit.db-shm
+server/fastfit.db-wal
+*.log
