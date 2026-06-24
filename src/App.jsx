@@ -280,9 +280,11 @@ async function genMental(responses){
 }
 async function genChat(history,profile){
   try{
-    const sys="Coach de fitness y nutricion. Responde en espanol, directo y conciso. Perfil del usuario: "+JSON.stringify(profile||{});
-    return await API.callAI(history.map(m=>({role:m.role,content:m.content})),sys,600);
-  }catch(_){ return "Error de conexion con la IA. Revisa tu API key e intentalo de nuevo."; }
+    const sys="Eres un coach de fitness y nutricion experto y amigable. Respondes en espanol, de forma clara, util y concisa. Tienes acceso al perfil del usuario: "+JSON.stringify(profile||{})+". Da consejos practicos y personalizados.";
+    return await API.callAI(history.map(m=>({role:m.role,content:m.content})),sys,800);
+  }catch(err){
+    return "No pude conectar con la IA. Detalle: "+(err.message||"error desconocido")+"\n\nVerifica que tu API key este bien puesta en Render y que tengas saldo en console.anthropic.com.";
+  }
 }
 
 /* ═══════════ SISTEMA DE RANGOS DE FUERZA ═══════════ */
@@ -832,7 +834,6 @@ function MealPage({uid}){
   const[gen,setGen]=useState(false);
   const[expanded,setExpanded]=useState(null);
   const[detail,setDetail]=useState(null);
-  const[imgErr,setImgErr]=useState({});
   const profile=getOne(uid,"profile");
   const generate=async()=>{setGen(true);const plan=await genMeal(profile);const updated=[plan,...plans];setPlans(updated);setMany(uid,"meal_plans",updated);setGen(false);};
   const plan=plans[0];
@@ -840,31 +841,6 @@ function MealPage({uid}){
   const MC={Desayuno:T.warn,Almuerzo:T.bright,Cena:"#a78bfa",Snack:T.ok,Merienda:T.ok};
   // Imagenes de comida via Loremflickr (servicio estable, busca en Flickr por keyword)
   // Imagenes fijas y confiables de Unsplash por tipo de comida (siempre cargan)
-  const FOOD_IMGS=[
-    {kw:["avena","oats","overnight","granola"],url:"https://images.unsplash.com/photo-1517673400267-0251440c45dc?w=600&q=80"},
-    {kw:["pancakes","tortita","tostada francesa"],url:"https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80"},
-    {kw:["tostada","pan integral"],url:"https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&q=80"},
-    {kw:["huevo","tortilla","revuelto","claras","pochado"],url:"https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=600&q=80"},
-    {kw:["pollo","pechuga","wrap","curry"],url:"https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=600&q=80"},
-    {kw:["salmon"],url:"https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&q=80"},
-    {kw:["merluza","lubina","bacalao","atun","pescado","gambas"],url:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=80"},
-    {kw:["batido","smoothie","shake","recuperador"],url:"https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=600&q=80"},
-    {kw:["yogur","requeson","kiwi"],url:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600&q=80"},
-    {kw:["ensalada","quinoa","verdura","espinaca"],url:"https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80"},
-    {kw:["ternera","carne","costilla","hamburguesa","pavo"],url:"https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600&q=80"},
-    {kw:["pasta","fideos"],url:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=600&q=80"},
-    {kw:["arroz","bowl","mexicano","frijoles"],url:"https://images.unsplash.com/photo-1516684732162-798a0062be99?w=600&q=80"},
-    {kw:["sopa","caldo"],url:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80"},
-    {kw:["boniato","patata","esparragos","brocoli","calabacin"],url:"https://images.unsplash.com/photo-1518779578993-ec3579fee39f?w=600&q=80"},
-    {kw:["frutos secos","almendras","nueces","edamame"],url:"https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=600&q=80"},
-    {kw:["tortitas de arroz","tortita de arroz"],url:"https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=80"},
-  ];
-  const DEFAULT_FOOD="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80";
-  const getFoodImg=name=>{
-    const n=name.toLowerCase();
-    const match=FOOD_IMGS.find(f=>f.kw.some(k=>n.includes(k)));
-    return match?match.url:DEFAULT_FOOD;
-  };
   return(<div>
     <div style={{padding:"24px 18px 14px"}}><p style={CC.lbl}>NUTRICION</p><h1 style={{fontSize:26,fontWeight:800,color:T.text}}>Plan de Comidas</h1></div>
     <div style={{padding:"0 18px 100px"}}>
@@ -897,14 +873,10 @@ function MealPage({uid}){
     </div>
     {detail&&(<div className="modal-ov" style={{position:"fixed",inset:0,background:"rgba(0,0,0,.92)",zIndex:999,display:"flex",alignItems:"flex-end",justifyContent:"center"}} onClick={e=>{if(e.target===e.currentTarget)setDetail(null);}}>
       <div className="modal-card" style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:"18px 18px 0 0",width:"100%",maxHeight:"88vh",overflowY:"auto"}}>
-        <div style={{position:"relative",width:"100%",height:200,overflow:"hidden",borderRadius:"18px 18px 0 0",background:`linear-gradient(135deg,${T.card},${T.surface})`}}>
-          {!imgErr[detail.name]?(<img src={getFoodImg(detail.name)} alt={detail.name} style={{width:"100%",height:"100%",objectFit:"cover",opacity:.9}} loading="eager" onError={()=>setImgErr(p=>({...p,[detail.name]:true}))}/>):(<div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:8,background:`linear-gradient(135deg,${T.card},${T.surface})`}}><span style={{fontSize:48}}>{"\uD83C\uDF7D\uFE0F"}</span><span style={{fontSize:11,color:T.dimT}}>Sin imagen disponible</span></div>)}
-          <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,rgba(0,0,0,.1) 30%,rgba(14,13,32,.98) 100%)"}}/>
-          <div style={{position:"absolute",bottom:14,left:20,right:52}}>
-            <div style={{fontSize:10,fontWeight:800,color:MC[detail.meal_type]||T.sub,letterSpacing:".08em",marginBottom:4}}>{detail.meal_type.toUpperCase()}</div>
-            <h2 style={{fontSize:17,fontWeight:800,color:"#fff",lineHeight:1.25}}>{detail.name}</h2>
-          </div>
-          <button onClick={()=>setDetail(null)} style={{position:"absolute",top:14,right:16,background:"rgba(0,0,0,.65)",border:`1px solid ${T.border}`,color:"#fff",width:34,height:34,borderRadius:"50%",fontSize:16,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>X</button>
+        <div style={{position:"relative",width:"100%",padding:"24px 20px 18px",borderRadius:"18px 18px 0 0",background:`linear-gradient(135deg,${T.surface},${T.card})`,borderBottom:`1px solid ${T.border}`}}>
+          <div style={{fontSize:10,fontWeight:800,color:MC[detail.meal_type]||T.sub,letterSpacing:".08em",marginBottom:6}}>{detail.meal_type.toUpperCase()}</div>
+          <h2 style={{fontSize:19,fontWeight:800,color:T.text,lineHeight:1.3,paddingRight:40}}>{detail.name}</h2>
+          <button onClick={()=>setDetail(null)} style={{position:"absolute",top:18,right:16,background:T.card,border:`1px solid ${T.border}`,color:T.sub,width:34,height:34,borderRadius:"50%",fontSize:16,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>X</button>
         </div>
         <div style={{padding:"18px 20px 36px"}}>
           <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:20}}>
