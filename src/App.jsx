@@ -52,53 +52,219 @@ async function loadUserData(uid){
 
 /* ═══════════ IA REAL (via backend -> Anthropic) ═══════════ */
 const WTPL={
-  hipertrofia:{title:"Hipertrofia Maxima",split:"Push/Pull/Legs",slots:[
-    {label:"Push",exs:["Press de Banca 4x8-12","Press Inclinado Mancuernas 4x10","Aperturas con Mancuernas 4x12","Press Militar 4x8-12","Elevaciones Laterales 4x15","Fondos con Lastre 3x10"]},
-    {label:"Pull",exs:["Peso Muerto Rumano 4x8","Dominadas Lastradas 4x6","Remo con Barra 4x8","Remo T 4x10","Curl con Barra 4x12","Curl Martillo 3x12"]},
-    {label:"Legs",exs:["Sentadilla 4x10","Prensa de Piernas 4x12","Peso Muerto Rumano con Mancuernas 3x12","Zancadas Caminando 3x10","Gemelos de Pie 4x15","Curl de Piernas 3x12"]},
+  // ── HIPERTROFIA (tabla: Push/Pull/Legs + Upper/Lower, 4x8-12, descanso 1-2 min) ──
+  hipertrofia:{title:"Hipertrofia Maxima",split:"Push/Pull/Legs + Upper/Lower",rest:90,slots:[
+    {label:"Empuje A",exs:["Press de Banca 4x8-12","Press de Banca Inclinado 4x8-12","Aperturas con Mancuernas 4x12","Press Militar 4x8-12","Elevaciones Laterales 4x15"]},
+    {label:"Traccion A",exs:["Peso Muerto Rumano 4x8-12","Dominadas Lastradas 4x8-12","Remo con Barra 4x8-12","Remo T 4x10","Curl con Barra 4x12"]},
+    {label:"Pierna A",exs:["Sentadilla 4x10-15","Prensa de Piernas 4x12","Peso Muerto Rumano con Mancuernas 4x12","Zancadas 4x12","Gemelos de Pie 4x15"]},
+    {label:"Torso B",exs:["Press de Banca con Mancuernas 4x8-12","Dominadas Neutras 4x8-12","Press Militar con Mancuernas 4x10","Remo de Pie con Barra 4x12","Fondos 4x10"]},
+    {label:"Pierna B",exs:["Sentadilla Frontal 4x10-15","Peso Muerto Sumo 4x10","Extensiones de Piernas 4x15","Curl de Piernas 4x12","Gemelos Sentado 4x20"]},
   ]},
-  fuerza:{title:"Fuerza Maxima",split:"5x5",slots:[
-    {label:"Push",exs:["Sentadilla 5x5","Press de Banca 5x5","Press Militar 5x5","Fondos Lastrados 4x5","Elevaciones Laterales 3x10","Triceps en Polea 3x10"]},
-    {label:"Pull",exs:["Peso Muerto 5x5","Dominadas Lastradas 4x5","Remo con Barra 4x5","Curl con Barra 3x8","Remo en Polea 3x8","Face Pull 3x12"]},
-    {label:"Legs",exs:["Sentadilla Frontal 4x6","Peso Muerto Rumano 4x6","Prensa de Piernas 3x8","Zancadas con Barra 3x8","Gemelos de Pie 4x10","Plancha 3x45s"]},
+  // ── FUERZA MAXIMA (tabla: Pull/Push/Legs, 5x5 y 4x6, descanso 3-5 min) ──
+  fuerza:{title:"Fuerza Maxima",split:"Push/Pull/Legs/Upper",rest:240,slots:[
+    {label:"Empuje (Push)",exs:["Sentadilla 5x5","Press de Banca 5x5","Press Militar 5x5"]},
+    {label:"Traccion (Pull)",exs:["Peso Muerto 5x5","Dominadas Lastradas 5x5","Remo con Barra 5x5"]},
+    {label:"Pierna (Legs)",exs:["Sentadilla Frontal 4x6","Peso Muerto Rumano 4x6","Prensa 4x6"]},
+    {label:"Torso (Upper)",exs:["Press de Banca Inclinado 4x6","Remo con Mancuerna 4x6","Fondos Lastrados 4x6"]},
   ]},
-  grasa:{title:"Salud Integral y Quema",split:"Fuerza + Cardio",slots:[
-    {label:"Fuerza y Movilidad",exs:["Sentadilla Peso Corporal 3x12","Flexiones 3x10","Plancha 3x45s","Peso Muerto con Mancuernas 3x12","Zancadas Caminando 3x10","Movilidad de Cadera 5 min"]},
-    {label:"Cardio LISS",exs:["Caminata Rapida 35 min","Eliptica Baja Intensidad 20 min","Ciclismo suave 30 min","Natacion 25 min","Remo ergometro 20 min"]},
-    {label:"Cardio HIIT",exs:["Sprints en Bici 10x30s","Burpees 4x8","Mountain Climbers 3x30s","Jump Squats 4x10","Cuerda de Saltar 5x1min"]},
+  // ── PERDIDA DE GRASA / SALUD INTEGRAL (tabla: Fuerza+Movilidad, LISS, HIIT) ──
+  grasa:{title:"Salud Integral y Quema",split:"Fuerza + Cardio",rest:75,slots:[
+    {label:"Fuerza y Movilidad",exs:["Sentadilla con Peso Corporal 3x12","Flexiones de Brazos 3x10","Movilidad de Cadera 5 min","Peso Muerto Rumano con Mancuernas 3x12","Plancha Abdominal 3x45s"]},
+    {label:"Cardio LISS",exs:["Caminata Rapida 30-45 min","Eliptica 30-45 min","Ciclismo 30-45 min"]},
+    {label:"Fuerza y Estabilidad",exs:["Peso Muerto Rumano con Mancuernas 3x12","Press de Banca 3x10","Plancha Abdominal 3x45s","Sentadilla con Peso Corporal 3x12","Movilidad de Cadera 5 min"]},
+    {label:"Cardio HIIT",exs:["Sprints en Bici o Cinta 10x30s","Saltos (Opcionales) 10x30s","Burpees 4x8","Mountain Climbers 3x30s"]},
+  ]},
+  // ── VELOCIDAD EXTREMA (tabla: Tecnica/Potencia, sprints, fuerza explosiva) ──
+  velocidad:{title:"Velocidad Extrema",split:"Tecnica y Potencia",rest:240,slots:[
+    {label:"Velocidad Pura / Tecnica",exs:["Drills Tecnicos (A-Skips, B-Skips) 6x1","Aceleraciones Cortas (20-30m) 5x20m","Sprints de 60m 4x60m"]},
+    {label:"Fuerza Explosiva Upper",exs:["Press de Banca Balistico (40-50% 1RM) 5x3","Remo con Mancuerna (Rapido) 4x6","Push Press Explosivo 4x3"]},
+    {label:"Aceleracion y Potencia",exs:["Salidas de Taco 6x1","Saltos Verticales (CMJ) 5x3","Arrastre de Trineo Ligero (10-15m) 5x15m","Sprints Resistidos 4x20m"]},
+    {label:"Fuerza Maxima / Coordinacion",exs:["Sentadilla Frontal Explosiva (75% 1RM) 4x3","Peso Muerto Rumano (Rapido) 4x5","Press Militar Rapido 4x3"]},
+  ]},
+  // ── EXPLOSIVIDAD DEPORTIVA / RESISTENCIA (tabla: Potencia y Transferencia) ──
+  resistencia:{title:"Explosividad Deportiva",split:"Potencia y Transferencia",rest:200,slots:[
+    {label:"Fuerza Explosiva Lower",exs:["Saltos Verticales (CMJ) 5x3","Sentadilla Explosiva (60-70% 1RM) 4x5","Peso Muerto Rumano (Rapido) 4x6"]},
+    {label:"Potencia Upper",exs:["Lanzamiento de Balon Medicinal 5x5","Press de Banca Balistico (45-55% 1RM) 4x3","Remo T (Velocidad) 4x6"]},
+    {label:"Aceleracion y Pliometria",exs:["Aceleraciones Cortas (15-20m) 5x4","Saltos en Caja 5x3","Arrastre de Trineo Ligero 4x15m"]},
+    {label:"Complejo de Transferencia",exs:["Cargadas de Potencia (Power Clean) 4x3","Dominadas Lastradas (Rapidas) 4x4","Push Press 4x3"]},
+  ]},
+  // ── BIENESTAR Y MOVILIDAD (tabla: Salud Integral, equilibrio) ──
+  bienestar:{title:"Salud Integral",split:"Bienestar y Movilidad",rest:90,slots:[
+    {label:"Fuerza y Movilidad",exs:["Sentadilla con Peso Corporal 3x12","Flexiones de Brazos 3x10","Movilidad de Cadera 5 min","Plancha Abdominal 3x45s"]},
+    {label:"Cardio LISS",exs:["Caminata Rapida 30-45 min","Eliptica o Ciclismo 30-45 min"]},
+    {label:"Fuerza y Estabilidad",exs:["Peso Muerto Rumano con Mancuernas 3x12","Press de Banca 3x10","Plancha Abdominal 3x45s"]},
+    {label:"Cardio HIIT",exs:["Sprints en Bici o Cinta 10x30s","Saltos (Opcionales) 10x30s"]},
   ]},
 };
-function getTpl(goal){const g=(goal||"").toLowerCase();if(g.includes("hipert"))return WTPL.hipertrofia;if(g.includes("fuerza"))return WTPL.fuerza;if(g.includes("grasa")||g.includes("perdida"))return WTPL.grasa;return WTPL.hipertrofia;}
+function getTpl(goal){const g=(goal||"").toLowerCase();if(g.includes("hipert"))return WTPL.hipertrofia;if(g.includes("fuerza"))return WTPL.fuerza;if(g.includes("grasa")||g.includes("perdida"))return WTPL.grasa;if(g.includes("velocidad"))return WTPL.velocidad;if(g.includes("resist"))return WTPL.resistencia;if(g.includes("bienestar")||g.includes("salud"))return WTPL.bienestar;return WTPL.hipertrofia;}
 function buildWorkout(tpl,days){
   const exs=[];
   days.forEach((day,i)=>{const slot=tpl.slots[i%tpl.slots.length];slot.exs.forEach(ex=>{const nm=ex.match(/^([^0-9]+)/),sr=ex.match(/(\d+)x([\d\-]+)/);exs.push({day,split_label:slot.label,name:(nm?nm[1].trim():ex),sets:sr?parseInt(sr[1]):3,reps:sr?sr[2]:"10-12",rest_seconds:90,muscle_group:"Varios",description:"Ejecuta con control tecnico y rango completo"});});});
   return{id:"wp_"+Date.now(),created_at:Date.now(),title:tpl.title,week_number:1,difficulty:"Intermedio",notes:"Split: "+tpl.split,exercises:exs};
 }
-const MFALLBACK={title:"Plan Nutricional - Semana 1",daily_calories:2400,notes:"Bebe 2.5-3L de agua diarios.",meals:[
-  {day:"Lunes",meal_type:"Desayuno",name:"Avena proteica con platano",ingredients:["80g avena","1 scoop proteina","1 platano","200ml leche"],calories:480,protein_g:40,carbs_g:62,fat_g:8},
-  {day:"Lunes",meal_type:"Almuerzo",name:"Pollo con arroz y brocoli",ingredients:["220g pechuga","160g arroz","200g brocoli"],calories:560,protein_g:52,carbs_g:58,fat_g:12},
-  {day:"Lunes",meal_type:"Snack",name:"Batido de proteina con almendras",ingredients:["1 scoop proteina","30g almendras","250ml leche"],calories:320,protein_g:32,carbs_g:18,fat_g:16},
-  {day:"Lunes",meal_type:"Cena",name:"Salmon con patata y esparragos",ingredients:["200g salmon","200g patata","150g esparragos"],calories:540,protein_g:44,carbs_g:42,fat_g:18},
-]};
+const MEAL_BANK={
+  Desayuno:[
+    {name:"Avena proteica con plátano y frutos rojos",ingredients:["80g avena","1 scoop proteína","1 plátano","100g frutos rojos","200ml leche"],base:{calories:480,protein_g:40,carbs_g:62,fat_g:8}},
+    {name:"Tortilla de claras con tostadas integrales",ingredients:["6 claras","2 huevos","2 tostadas integrales","½ aguacate","tomate"],base:{calories:440,protein_g:38,carbs_g:36,fat_g:14}},
+    {name:"Yogur griego con granola y miel",ingredients:["250g yogur griego","50g granola","1 cucharada miel","frutos rojos"],base:{calories:420,protein_g:30,carbs_g:50,fat_g:9}},
+    {name:"Pan integral con huevo y aguacate",ingredients:["2 rebanadas pan integral","2 huevos","½ aguacate","semillas"],base:{calories:450,protein_g:24,carbs_g:38,fat_g:22}},
+    {name:"Panqueques de avena y plátano",ingredients:["80g avena","1 plátano","2 huevos","canela","miel"],base:{calories:460,protein_g:26,carbs_g:60,fat_g:12}},
+    {name:"Batido verde con avena y mantequilla de maní",ingredients:["1 scoop proteína","espinaca","1 plátano","30g avena","1 cda mantequilla de maní","250ml leche"],base:{calories:490,protein_g:38,carbs_g:54,fat_g:14}},
+    {name:"Tazón de requesón con fruta y nueces",ingredients:["200g requesón","1 manzana","30g nueces","canela"],base:{calories:400,protein_g:32,carbs_g:34,fat_g:16}},
+    {name:"Tostada francesa integral con fruta",ingredients:["3 rebanadas pan integral","2 huevos","canela","fresas","sirope sin azúcar"],base:{calories:430,protein_g:24,carbs_g:52,fat_g:13}},
+    {name:"Bowl de yogur, kiwi y semillas de chía",ingredients:["250g yogur griego","2 kiwis","20g semillas de chía","30g avena"],base:{calories:410,protein_g:28,carbs_g:46,fat_g:12}},
+    {name:"Huevos revueltos con espinaca y queso",ingredients:["3 huevos","100g espinaca","40g queso fresco","1 tostada integral"],base:{calories:420,protein_g:30,carbs_g:20,fat_g:24}},
+    {name:"Smoothie de frutos rojos y proteína",ingredients:["1 scoop proteína","150g frutos rojos","1 plátano","200ml leche de almendras","30g avena"],base:{calories:440,protein_g:34,carbs_g:58,fat_g:8}},
+  ],
+  Almuerzo:[
+    {name:"Pechuga de pollo con arroz y brócoli",ingredients:["220g pechuga de pollo","160g arroz cocido","200g brócoli","10ml aceite de oliva"],base:{calories:560,protein_g:52,carbs_g:58,fat_g:12}},
+    {name:"Salmón al horno con quinoa y espárragos",ingredients:["200g salmón","150g quinoa cocida","150g espárragos","limón"],base:{calories:580,protein_g:46,carbs_g:48,fat_g:20}},
+    {name:"Ternera magra con patata y ensalada",ingredients:["200g ternera magra","200g patata cocida","ensalada mixta","10ml aceite de oliva"],base:{calories:600,protein_g:50,carbs_g:52,fat_g:18}},
+    {name:"Pavo con pasta integral y verduras",ingredients:["200g pavo","150g pasta integral cocida","calabacín","pimiento","tomate"],base:{calories:570,protein_g:48,carbs_g:62,fat_g:10}},
+    {name:"Atún con arroz integral y aguacate",ingredients:["180g atún","160g arroz integral","½ aguacate","maíz","tomate"],base:{calories:590,protein_g:44,carbs_g:60,fat_g:16}},
+    {name:"Lentejas con arroz y verduras",ingredients:["200g lentejas cocidas","120g arroz","zanahoria","cebolla","comino"],base:{calories:540,protein_g:28,carbs_g:80,fat_g:8}},
+    {name:"Pollo al curry con arroz basmati",ingredients:["200g pollo","150g arroz basmati","leche de coco light","curry","verduras"],base:{calories:610,protein_g:46,carbs_g:64,fat_g:16}},
+    {name:"Pescado blanco con boniato y judías verdes",ingredients:["220g pescado blanco","200g boniato","150g judías verdes","aceite de oliva"],base:{calories:560,protein_g:46,carbs_g:54,fat_g:14}},
+    {name:"Bowl mexicano de pollo y frijoles",ingredients:["180g pollo","100g arroz","100g frijoles","maíz","aguacate","pico de gallo"],base:{calories:620,protein_g:48,carbs_g:66,fat_g:16}},
+    {name:"Salteado de gambas con fideos de arroz",ingredients:["200g gambas","150g fideos de arroz","verduras wok","salsa de soya","jengibre"],base:{calories:550,protein_g:42,carbs_g:64,fat_g:10}},
+    {name:"Hamburguesa casera de pavo con patata al horno",ingredients:["180g pavo picado","pan integral","200g patata","lechuga","tomate"],base:{calories:600,protein_g:48,carbs_g:58,fat_g:18}},
+  ],
+  Snack:[
+    {name:"Batido de proteína con almendras",ingredients:["1 scoop proteína","30g almendras","250ml leche"],base:{calories:320,protein_g:32,carbs_g:18,fat_g:16}},
+    {name:"Yogur griego con frutos secos",ingredients:["200g yogur griego","30g nueces","miel"],base:{calories:280,protein_g:18,carbs_g:20,fat_g:14}},
+    {name:"Tostada integral con pavo",ingredients:["2 tostadas integrales","100g pavo","tomate"],base:{calories:260,protein_g:24,carbs_g:30,fat_g:5}},
+    {name:"Fruta con mantequilla de maní",ingredients:["1 manzana","2 cdas mantequilla de maní"],base:{calories:290,protein_g:8,carbs_g:32,fat_g:16}},
+    {name:"Requesón con piña",ingredients:["200g requesón","150g piña"],base:{calories:230,protein_g:24,carbs_g:24,fat_g:4}},
+    {name:"Hummus con bastones de zanahoria",ingredients:["100g hummus","2 zanahorias","apio"],base:{calories:250,protein_g:9,carbs_g:26,fat_g:13}},
+    {name:"Puñado de mix de frutos secos",ingredients:["40g almendras","20g pasas","10g semillas"],base:{calories:300,protein_g:9,carbs_g:24,fat_g:20}},
+    {name:"Tortitas de arroz con queso fresco y pavo",ingredients:["3 tortitas de arroz","60g queso fresco","60g pavo"],base:{calories:240,protein_g:20,carbs_g:28,fat_g:6}},
+    {name:"Batido de plátano y avena",ingredients:["1 plátano","40g avena","200ml leche","canela"],base:{calories:300,protein_g:12,carbs_g:52,fat_g:6}},
+    {name:"Edamames con sal marina",ingredients:["150g edamames","sal marina"],base:{calories:220,protein_g:18,carbs_g:18,fat_g:9}},
+  ],
+  Cena:[
+    {name:"Merluza al vapor con verduras salteadas",ingredients:["220g merluza","300g verduras mixtas","10ml aceite de oliva","ajo"],base:{calories:360,protein_g:44,carbs_g:18,fat_g:12}},
+    {name:"Pechuga a la plancha con ensalada verde",ingredients:["200g pechuga","ensalada grande","½ aguacate","aceite de oliva"],base:{calories:380,protein_g:44,carbs_g:12,fat_g:18}},
+    {name:"Revuelto de huevos con champiñones",ingredients:["3 huevos","200g champiñones","2 tostadas integrales","perejil"],base:{calories:400,protein_g:28,carbs_g:30,fat_g:18}},
+    {name:"Tortilla española con ensalada",ingredients:["3 huevos","150g patata","cebolla","ensalada"],base:{calories:420,protein_g:24,carbs_g:38,fat_g:18}},
+    {name:"Wok de tofu con verduras y arroz",ingredients:["200g tofu","150g arroz","brócoli","zanahoria","salsa de soya"],base:{calories:440,protein_g:30,carbs_g:50,fat_g:14}},
+    {name:"Crema de calabaza con pollo desmenuzado",ingredients:["crema de calabaza","150g pollo","semillas","pan integral"],base:{calories:360,protein_g:36,carbs_g:28,fat_g:10}},
+    {name:"Lubina al horno con verduras mediterráneas",ingredients:["220g lubina","pimiento","tomate","cebolla","hierbas"],base:{calories:400,protein_g:42,carbs_g:18,fat_g:18}},
+    {name:"Salmón a la plancha con espárragos",ingredients:["200g salmón","200g espárragos","limón","eneldo"],base:{calories:420,protein_g:42,carbs_g:10,fat_g:24}},
+    {name:"Ensalada templada de pollo y garbanzos",ingredients:["150g pollo","120g garbanzos","espinaca","tomate cherry","aceite de oliva"],base:{calories:430,protein_g:40,carbs_g:34,fat_g:14}},
+    {name:"Pollo al horno con calabacín y boniato",ingredients:["200g pollo","150g boniato","calabacín","romero"],base:{calories:440,protein_g:46,carbs_g:36,fat_g:10}},
+    {name:"Sopa de verduras con pavo y fideos",ingredients:["150g pavo","fideos integrales","caldo de verduras","zanahoria","apio"],base:{calories:360,protein_g:34,carbs_g:32,fat_g:8}},
+  ],
+};
+const DAYS_ES=["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+
+// Calcula calorías objetivo según datos del usuario (Mifflin-St Jeor + actividad + objetivo)
+function targetCalories(prof){
+  const w=parseFloat(prof?.weight_kg)||75;
+  const h=parseFloat(prof?.height_cm)||175;
+  const age=parseFloat(prof?.age)||28;
+  const male=(prof?.sex||"Masculino")!=="Femenino";
+  // Metabolismo basal
+  let bmr=10*w+6.25*h-5*age+(male?5:-161);
+  // Factor de actividad
+  const act={"Sedentario":1.3,"Ligeramente activo":1.45,"Moderadamente activo":1.6,"Muy activo":1.75}[prof?.activity_level]||1.5;
+  let cal=bmr*act;
+  // Ajuste por objetivo
+  const goal=(prof?.fitness_goal||"").toLowerCase();
+  if(goal.includes("pérdida")||goal.includes("grasa")) cal-=450;
+  else if(goal.includes("hipert")||goal.includes("músculo")||goal.includes("fuerza")) cal+=300;
+  return Math.round(cal/10)*10;
+}
+
+// Genera un plan semanal variado ajustado al usuario
+function generateMealPlan(prof){
+  const dailyTarget=targetCalories(prof);
+  // Suma de calorías base de una combinación promedio ≈ 1800 (480+560+320+440). Escalamos.
+  const meals=[];
+  // Cada generación empieza en un punto aleatorio del banco -> planes distintos cada vez.
+  // Y dentro de la semana, cada día avanza una posición distinta -> 7 días sin repetir.
+  const types=["Desayuno","Almuerzo","Snack","Cena"];
+  const starts={};
+  types.forEach((type,i)=>{
+    const bank=MEAL_BANK[type];
+    starts[type]=Math.floor(Math.random()*bank.length); // punto de inicio aleatorio
+  });
+  DAYS_ES.forEach((day,di)=>{
+    types.forEach((type,ti)=>{
+      const bank=MEAL_BANK[type];
+      // desfase combinado para que no se repita el mismo día en distintas comidas
+      const idx=(starts[type]+di*1+ti)%bank.length;
+      const item=bank[idx];
+      meals.push({day,meal_type:type,name:item.name,ingredients:item.ingredients,...item.base});
+    });
+  });
+  // Escalar todas las comidas para acercarse al objetivo calórico del usuario
+  const rawDaily=meals.slice(0,4).reduce((s,m)=>s+m.calories,0);
+  const factor=Math.max(0.7,Math.min(1.5,dailyTarget/rawDaily));
+  const scaled=meals.map(m=>({
+    ...m,
+    calories:Math.round(m.calories*factor/5)*5,
+    protein_g:Math.round(m.protein_g*factor),
+    carbs_g:Math.round(m.carbs_g*factor),
+    fat_g:Math.round(m.fat_g*factor),
+  }));
+  const goalLabel=prof?.fitness_goal||"Bienestar general";
+  return {
+    id:"mp_"+Date.now(),created_at:Date.now(),week_number:1,
+    title:`Plan ${goalLabel} — Semana 1`,
+    daily_calories:dailyTarget,
+    notes:`Plan personalizado para tu objetivo (${goalLabel}). Bebe 2.5-3L de agua al día y ajusta las porciones según tu hambre y energía.`,
+    meals:scaled,
+  };
+}
 
 // Genera la rutina con IA real; si falla, usa plantilla
+// Principios de entrenamiento (extraidos de tablas profesionales) que guian a la IA
+const TRAINING_GUIDE=`PRINCIPIOS POR OBJETIVO (usalos como base):
+- HIPERTROFIA: split Push/Pull/Legs + Upper/Lower. 4 series de 8-12 reps (piernas 10-15). Descanso 1-2 min. Claves: sobrecarga progresiva, volumen alto, tiempo bajo tension (TUT). Ejercicios base: press banca/inclinado, aperturas, press militar, elevaciones laterales, peso muerto rumano, dominadas lastradas, remo barra/T, curl barra, sentadilla, prensa, zancadas, gemelos.
+- FUERZA MAXIMA: split Push/Pull/Legs/Upper. 5x5 en basicos, 4x6 en accesorios. Descanso 3-5 min. Claves: sobrecarga progresiva, tecnica perfecta, recuperacion optima. Ejercicios: sentadilla, press banca, press militar, peso muerto, dominadas lastradas, remo barra, sentadilla frontal, peso muerto rumano.
+- VELOCIDAD: enfoque tecnica y potencia. Drills (A-skips, B-skips), sprints 20-60m, fuerza explosiva 5x3 al 40-50% 1RM, saltos CMJ, trineo, pliometria. Descanso 3-5 min (recuperacion total del sistema nervioso). Clave: maxima intensidad cada sprint, evitar fatiga metabolica.
+- RESISTENCIA/EXPLOSIVIDAD DEPORTIVA: potencia y transferencia. Saltos verticales, sentadilla explosiva 60-70% 1RM, lanzamiento balon medicinal, cargadas de potencia, pliometria. Series 4-5x3-6. Descanso 2-4 min. Clave: maxima velocidad en fase concentrica.
+- PERDIDA DE GRASA / SALUD INTEGRAL: combina fuerza+movilidad (3x10-12), cardio LISS (30-45 min continuo) y cardio HIIT (10x30s on/off). Descanso 1-2 min en fuerza. Claves: consistencia, variedad de estimulos, deficit calorico moderado.
+- BIENESTAR/MOVILIDAD: equilibrio entre fuerza suave, movilidad y cardio ligero. Escuchar al cuerpo.`;
+
 async function genWorkout(profile,days,equip){
+  const goal=profile?.fitness_goal||"general";
+  const tpl=getTpl(goal);
   try{
-    const tpl=getTpl(profile?.fitness_goal);
-    const sys="Eres entrenador personal experto. Responde SOLO con JSON puro y valido, sin markdown.";
-    const slotMap=days.map((day,i)=>{const slot=tpl.slots[i%tpl.slots.length];return day+" -> "+slot.label+": ["+slot.exs.join(" | ")+"]";}).join("\n");
-    const prompt="Adapta este plan al equipamiento ("+(equip.join(", ")||"peso corporal")+"). Objetivo: "+(profile?.fitness_goal||"general")+". Mantiene dias y splits. Minimo 6 ejercicios por dia.\n"+slotMap+"\nResponde SOLO JSON: {\"title\":\""+tpl.title+"\",\"week_number\":1,\"difficulty\":\"Intermedio\",\"notes\":\""+tpl.split+"\",\"exercises\":[{\"day\":\"Lunes\",\"split_label\":\"Push\",\"name\":\"Press de Banca\",\"sets\":4,\"reps\":\"8-12\",\"rest_seconds\":90,\"muscle_group\":\"Pecho\",\"description\":\"tecnica\"}]}";
-    const raw=await API.callAI([{role:"user",content:prompt}],sys,3000);
-    return {...API.parseJSON(raw),id:"wp_"+Date.now(),created_at:Date.now()};
-  }catch(_){ return buildWorkout(getTpl(profile?.fitness_goal),days); }
+    const sys="Eres un entrenador personal de elite. Disenas rutinas personalizadas y bien razonadas. Respondes SOLO con JSON puro y valido, sin markdown ni texto extra.";
+    const refPlan=tpl.slots.map((s,i)=>(i+1)+". "+s.label+": "+s.exs.join(", ")).join("\n");
+    const prompt=
+"Disena una rutina semanal PERSONALIZADA y bien pensada.\n\n"+
+"PERFIL DEL USUARIO:\n"+
+"- Objetivo: "+goal+"\n"+
+"- Peso: "+(profile?.weight_kg||"?")+"kg | Altura: "+(profile?.height_cm||"?")+"cm | Edad: "+(profile?.age||"?")+" | Sexo: "+(profile?.sex||"?")+"\n"+
+"- Nivel de actividad: "+(profile?.activity_level||"moderado")+"\n"+
+"- Equipamiento disponible: "+(equip.join(", ")||"peso corporal")+"\n"+
+"- Dias que entrenara: "+days.join(", ")+" ("+days.length+" dias)\n\n"+
+TRAINING_GUIDE+"\n\n"+
+"PLAN DE REFERENCIA para este objetivo (usalo como base, adaptalo al equipamiento y nivel):\n"+refPlan+"\n\n"+
+"INSTRUCCIONES:\n"+
+"1. Crea EXACTAMENTE "+days.length+" dias de entrenamiento, uno por cada dia indicado ("+days.join(", ")+"). Reparte los enfoques de forma logica (no repitas el mismo musculo dos dias seguidos).\n"+
+"2. Si el objetivo NO encaja con los planes de referencia, RAZONA y disena tu propia rutina con principios solidos de entrenamiento.\n"+
+"3. Adapta los ejercicios al equipamiento disponible. Si solo hay peso corporal, sustituye los de barra/maquina por equivalentes.\n"+
+"4. 5 a 6 ejercicios por dia. Usa las series, repeticiones y descansos correctos para el objetivo (ver principios).\n"+
+"5. En cada ejercicio incluye una descripcion breve de tecnica.\n\n"+
+"Responde SOLO con este JSON:\n"+
+'{"title":"'+tpl.title+'","week_number":1,"difficulty":"Intermedio","notes":"'+tpl.split+'","exercises":[{"day":"'+days[0]+'","split_label":"Empuje","name":"Press de Banca","sets":4,"reps":"8-12","rest_seconds":'+(tpl.rest||90)+',"muscle_group":"Pecho","description":"Baja la barra al pecho con control"}]}';
+    const raw=await API.callAI([{role:"user",content:prompt}],sys,4000);
+    const plan=API.parseJSON(raw);
+    // Validar que la IA respeto los dias; si no, usar fallback
+    const planDays=[...new Set((plan.exercises||[]).map(e=>e.day))];
+    if(!plan.exercises||plan.exercises.length<days.length*3||planDays.length<Math.min(days.length,2)){
+      return buildWorkout(tpl,days);
+    }
+    return {...plan,id:"wp_"+Date.now(),created_at:Date.now()};
+  }catch(_){ return buildWorkout(tpl,days); }
 }
 async function genMeal(profile){
-  try{
-    const sys="Eres nutricionista deportivo. Responde SOLO con JSON puro y valido.";
-    const prompt="Plan nutricional semanal (7 dias, 4 comidas/dia). Perfil: objetivo="+(profile?.fitness_goal||"bienestar")+", peso="+(profile?.weight_kg||70)+"kg, sexo="+(profile?.sex||"masculino")+". Responde SOLO JSON: {\"title\":\"Plan Semana 1\",\"week_number\":1,\"daily_calories\":2200,\"meals\":[{\"day\":\"Lunes\",\"meal_type\":\"Desayuno\",\"name\":\"...\",\"ingredients\":[\"...\"],\"calories\":420,\"protein_g\":35,\"carbs_g\":55,\"fat_g\":8}],\"notes\":\"...\"}";
-    const raw=await API.callAI([{role:"user",content:prompt}],sys,4000);
-    return {...API.parseJSON(raw),id:"mp_"+Date.now(),created_at:Date.now()};
-  }catch(_){ return {...MFALLBACK,id:"mp_"+Date.now(),created_at:Date.now()}; }
+  // Usamos el generador local: es variado (7 dias distintos), personalizado por
+  // calorias/peso/objetivo, y siempre funciona (no depende de que la IA devuelva JSON valido).
+  return generateMealPlan(profile);
 }
 async function genAnalysis(logs,completed){
   try{ return await API.callAI([{role:"user",content:"Analiza el progreso. Directo, motivador. Max 200 palabras espanol.\nMedidas:"+JSON.stringify(logs.slice(0,5))+"\nEntrenos:"+JSON.stringify(completed.slice(0,8))}],"Coach de alto rendimiento.",700); }
@@ -196,14 +362,15 @@ const CC={card:{background:T.card,border:`1px solid ${T.border}`,borderRadius:T.
 
 function Logo({h=28}){
   const fs=Math.round(h*1.38);
-  const bH=Math.round(fs*0.82);   // rayo casi tan alto como las letras
-  const bW=Math.round(bH*0.55);
-  return(<div style={{display:"inline-flex",alignItems:"center",userSelect:"none"}}>
-    <span style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:fs,color:"#fff",letterSpacing:"-1.5px",lineHeight:1}}>FASTF</span>
-    <svg width={bW} height={bH} viewBox="0 0 22 44" fill="none" style={{flexShrink:0,margin:"0 2px",display:"block"}}>
+  const bH=Math.round(fs*0.92);   // rayo a la altura de la mayuscula
+  const bW=Math.round(bH*0.5);
+  const txt={fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:fs,color:"#fff",letterSpacing:"-1.5px",lineHeight:1,display:"inline-block"};
+  return(<div style={{display:"inline-flex",alignItems:"center",userSelect:"none",lineHeight:1}}>
+    <span style={txt}>FASTF</span>
+    <svg width={bW} height={bH} viewBox="0 0 22 44" fill="none" style={{flexShrink:0,margin:"0 1px",display:"block",position:"relative",top:"-1px"}}>
       <polygon points="16,0 6,20 12,20 3,44 21,15 13,15 22,0" fill={T.bright} style={{filter:`drop-shadow(0 0 7px ${T.glow})`}}/>
     </svg>
-    <span style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:fs,color:"#fff",letterSpacing:"-1.5px",lineHeight:1}}>T</span>
+    <span style={txt}>T</span>
   </div>);
 }
 
@@ -348,15 +515,20 @@ function AuthPage({onLogin}){
     }catch(err){ setE(err.message||"Error de conexion con el servidor."); }
     setBusy(false);
   };
-  return(<div style={{minHeight:"100vh",display:"flex",flexDirection:"column",justifyContent:"center",padding:"40px 28px",background:T.bg}}>
-    <div style={{marginBottom:44}}><Logo h={30}/><p style={{color:T.sub,marginTop:14,fontSize:13}}>Tu entrenador personal con inteligencia artificial.</p></div>
-    <div style={{display:"flex",gap:6,marginBottom:28}}>{[["login","Iniciar sesion"],["register","Registrarse"]].map(([m,l])=>(<button key={m} onClick={()=>setMode(m)} style={{flex:1,padding:"10px 0",borderRadius:T.r,border:`1px solid ${mode===m?T.bright:T.border}`,background:mode===m?T.dim:"transparent",color:mode===m?T.bright:T.sub,fontSize:13,fontWeight:700,fontFamily:"inherit",cursor:"pointer"}}>{l}</button>))}</div>
-    <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      {mode==="register"&&<div><label style={CC.lbl}>Nombre</label><input style={CC.inp} placeholder="Tu nombre" value={f.name} onChange={set("name")}/></div>}
-      <div><label style={CC.lbl}>Email</label><input style={CC.inp} type="email" placeholder="correo@ejemplo.com" value={f.email} onChange={set("email")}/></div>
-      <div><label style={CC.lbl}>Contrasena</label><input style={CC.inp} type="password" placeholder="********" value={f.password} onChange={set("password")} onKeyDown={ev=>ev.key==="Enter"&&submit()}/></div>
-      {e&&<p style={{color:T.err,fontSize:13}}>{e}</p>}
-      <Btn ch={busy?<><Spin/>Conectando...</>:(mode==="login"?"Entrar":"Crear cuenta")} onClick={submit} disabled={busy}/>
+  return(<div style={{minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center",padding:"clamp(16px,5vw,40px)",background:T.bg,boxSizing:"border-box"}}>
+    <div style={{width:"100%",maxWidth:"min(400px,92vw)",display:"flex",flexDirection:"column"}}>
+      <div style={{marginBottom:"clamp(24px,6vh,44px)",textAlign:"center"}}>
+        <div style={{display:"flex",justifyContent:"center"}}><Logo h={34}/></div>
+        <p style={{color:T.sub,marginTop:16,fontSize:"clamp(13px,3.6vw,15px)",lineHeight:1.5}}>Tu entrenador personal con inteligencia artificial.</p>
+      </div>
+      <div style={{display:"flex",gap:6,marginBottom:"clamp(18px,4vh,26px)"}}>{[["login","Iniciar sesi\u00f3n"],["register","Registrarse"]].map(([m,l])=>(<button key={m} onClick={()=>setMode(m)} style={{flex:1,padding:"clamp(10px,2.6vw,13px) 0",borderRadius:T.r,border:`1px solid ${mode===m?T.bright:T.border}`,background:mode===m?T.dim:"transparent",color:mode===m?T.bright:T.sub,fontSize:"clamp(12px,3.4vw,14px)",fontWeight:700,fontFamily:"inherit",cursor:"pointer"}}>{l}</button>))}</div>
+      <div style={{display:"flex",flexDirection:"column",gap:"clamp(12px,2.6vh,16px)"}}>
+        {mode==="register"&&<div><label style={CC.lbl}>Nombre</label><input style={CC.inp} placeholder="Tu nombre" value={f.name} onChange={set("name")}/></div>}
+        <div><label style={CC.lbl}>Email</label><input style={CC.inp} type="email" placeholder="correo@ejemplo.com" value={f.email} onChange={set("email")}/></div>
+        <div><label style={CC.lbl}>Contrase\u00f1a</label><input style={CC.inp} type="password" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" value={f.password} onChange={set("password")} onKeyDown={ev=>ev.key==="Enter"&&submit()}/></div>
+        {e&&<p style={{color:T.err,fontSize:13}}>{e}</p>}
+        <Btn ch={busy?<><Spin/>Conectando...</>:(mode==="login"?"Entrar":"Crear cuenta")} onClick={submit} disabled={busy}/>
+      </div>
     </div>
   </div>);
 }
@@ -371,7 +543,8 @@ function Onboarding({uid,onDone}){
     {emoji:"\uD83D\uDCAA",label:"Ganar musculo (Hipertrofia)",value:"Hipertrofia"},
     {emoji:"\uD83D\uDD25",label:"Perder peso / grasa",value:"Perdida de grasa"},
     {emoji:"\uD83C\uDFCB\uFE0F",label:"Ganar fuerza",value:"Fuerza maxima"},
-    {emoji:"\u26A1",label:"Ganar velocidad y resistencia",value:"Resistencia"},
+    {emoji:"\uD83C\uDFC3",label:"Mejorar resistencia",value:"Resistencia"},
+    {emoji:"\u26A1",label:"Ganar velocidad",value:"Ganar velocidad"},
     {emoji:"\u270F\uFE0F",label:"Otro objetivo",value:"OTRO"},
   ];
   const LEVELS=[
@@ -666,28 +839,31 @@ function MealPage({uid}){
   const grouped=plan?plan.meals.reduce((acc,m)=>{if(!acc[m.day])acc[m.day]=[];acc[m.day].push(m);return acc;},{}):{}; 
   const MC={Desayuno:T.warn,Almuerzo:T.bright,Cena:"#a78bfa",Snack:T.ok,Merienda:T.ok};
   // Imagenes de comida via Loremflickr (servicio estable, busca en Flickr por keyword)
-  const FOOD_KW=[
-    {kw:["avena","oats","overnight","granola"],q:"oatmeal,breakfast"},
-    {kw:["pollo","pechuga","wrap","curry"],q:"chicken,meal"},
-    {kw:["salmon"],q:"salmon,plate"},
-    {kw:["merluza","lubina","bacalao","atun","pescado"],q:"fish,dish"},
-    {kw:["huevo","tortilla","revuelto","claras","french","pochado"],q:"eggs,breakfast"},
-    {kw:["batido","smoothie","shake","recuperador"],q:"smoothie,drink"},
-    {kw:["ensalada","quinoa","verdura"],q:"salad,healthy"},
-    {kw:["pancakes","tostada"],q:"pancakes,toast"},
-    {kw:["yogur","requeson","manzana","frutos secos","queso"],q:"yogurt,bowl"},
-    {kw:["ternera","carne","costilla"],q:"beef,steak"},
-    {kw:["pasta"],q:"pasta,italian"},
-    {kw:["arroz"],q:"rice,bowl"},
-    {kw:["sopa","caldo"],q:"soup,bowl"},
+  // Imagenes fijas y confiables de Unsplash por tipo de comida (siempre cargan)
+  const FOOD_IMGS=[
+    {kw:["avena","oats","overnight","granola"],url:"https://images.unsplash.com/photo-1517673400267-0251440c45dc?w=600&q=80"},
+    {kw:["pancakes","tortita","tostada francesa"],url:"https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600&q=80"},
+    {kw:["tostada","pan integral"],url:"https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&q=80"},
+    {kw:["huevo","tortilla","revuelto","claras","pochado"],url:"https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=600&q=80"},
+    {kw:["pollo","pechuga","wrap","curry"],url:"https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=600&q=80"},
+    {kw:["salmon"],url:"https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&q=80"},
+    {kw:["merluza","lubina","bacalao","atun","pescado","gambas"],url:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=80"},
+    {kw:["batido","smoothie","shake","recuperador"],url:"https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=600&q=80"},
+    {kw:["yogur","requeson","kiwi"],url:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600&q=80"},
+    {kw:["ensalada","quinoa","verdura","espinaca"],url:"https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80"},
+    {kw:["ternera","carne","costilla","hamburguesa","pavo"],url:"https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600&q=80"},
+    {kw:["pasta","fideos"],url:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=600&q=80"},
+    {kw:["arroz","bowl","mexicano","frijoles"],url:"https://images.unsplash.com/photo-1516684732162-798a0062be99?w=600&q=80"},
+    {kw:["sopa","caldo"],url:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80"},
+    {kw:["boniato","patata","esparragos","brocoli","calabacin"],url:"https://images.unsplash.com/photo-1518779578993-ec3579fee39f?w=600&q=80"},
+    {kw:["frutos secos","almendras","nueces","edamame"],url:"https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=600&q=80"},
+    {kw:["tortitas de arroz","tortita de arroz"],url:"https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=80"},
   ];
+  const DEFAULT_FOOD="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80";
   const getFoodImg=name=>{
     const n=name.toLowerCase();
-    const match=FOOD_KW.find(f=>f.kw.some(k=>n.includes(k)));
-    const q=match?match.q:"healthy,food";
-    // loremflickr: imagen aleatoria por keyword, con seed estable basado en el nombre
-    const seed=Math.abs([...name].reduce((a,ch)=>a+ch.charCodeAt(0),0))%100;
-    return `https://loremflickr.com/640/400/${q}?lock=${seed}`;
+    const match=FOOD_IMGS.find(f=>f.kw.some(k=>n.includes(k)));
+    return match?match.url:DEFAULT_FOOD;
   };
   return(<div>
     <div style={{padding:"24px 18px 14px"}}><p style={CC.lbl}>NUTRICION</p><h1 style={{fontSize:26,fontWeight:800,color:T.text}}>Plan de Comidas</h1></div>
@@ -1420,9 +1596,17 @@ function SocialPage({uid,user}){
 function ProfilePage({uid,user,onLogout}){
   const[profile,setProfile]=useState(()=>getOne(uid,"profile")||{});
   const[saved,setSaved]=useState(false);
-  const GOALS=["Hipertrofia","Perdida de grasa","Fuerza maxima","Resistencia","Bienestar general"];
+  const[goalChanged,setGoalChanged]=useState(false);
+  const GOALS=["Hipertrofia","Perdida de grasa","Fuerza maxima","Resistencia","Ganar velocidad","Bienestar general"];
   const LEVELS=["Sedentario","Ligeramente activo","Moderadamente activo","Muy activo"];
-  const save=()=>{const h=parseFloat(profile.height_cm||175)/100,w=parseFloat(profile.weight_kg||75);const bmi=(w/(h*h)).toFixed(1);const p={...profile,bmi,created_at:profile.created_at||Date.now()};setOne(uid,"profile",p);setProfile(p);setSaved(true);setTimeout(()=>setSaved(false),2000);};
+  const origGoal=getOne(uid,"profile")?.fitness_goal;
+  const pickGoal=(g)=>{setProfile({...profile,fitness_goal:g,custom_goal:g==="OTRO"?(profile.custom_goal||""):""});setGoalChanged(g!==origGoal);};
+  const save=()=>{
+    const h=parseFloat(profile.height_cm||175)/100,w=parseFloat(profile.weight_kg||75);const bmi=(w/(h*h)).toFixed(1);
+    const finalGoal=profile.fitness_goal==="OTRO"?(profile.custom_goal||"Bienestar general"):profile.fitness_goal;
+    const p={...profile,fitness_goal:finalGoal,bmi,created_at:profile.created_at||Date.now()};
+    setOne(uid,"profile",p);setProfile(p);setSaved(true);setTimeout(()=>setSaved(false),2000);
+  };
   const bmi=profile.bmi?parseFloat(profile.bmi):null;
   const[bLabel,bColor]=bmi?bmiCat(bmi):["—",T.sub];
   return(<div>
@@ -1438,7 +1622,13 @@ function ProfilePage({uid,user,onLogout}){
           <div><label style={CC.lbl}>Sexo biologico</label><div style={{display:"flex",gap:8}}>{["Masculino","Femenino"].map(sx=><Chip key={sx} label={sx} active={profile.sex===sx} onClick={()=>setProfile({...profile,sex:sx})} sx={{flex:1}}/>)}</div></div>
         </div>
       </div>
-      <div style={CC.card}><h3 style={{fontSize:14,fontWeight:700,marginBottom:12}}>Objetivo</h3><div style={{display:"flex",flexDirection:"column",gap:7}}>{GOALS.map(g=><Chip key={g} label={g} active={profile.fitness_goal===g} onClick={()=>setProfile({...profile,fitness_goal:g})} sx={{justifyContent:"flex-start",borderRadius:T.r}}/>)}</div></div>
+      <div style={CC.card}><h3 style={{fontSize:14,fontWeight:700,marginBottom:12}}>Objetivo</h3><div style={{display:"flex",flexDirection:"column",gap:7}}>{GOALS.map(g=><Chip key={g} label={g} active={profile.fitness_goal===g} onClick={()=>pickGoal(g)} sx={{justifyContent:"flex-start",borderRadius:T.r}}/>)}
+        <Chip label="✏️ Otro objetivo (escribir)" active={profile.fitness_goal==="OTRO"||(profile.fitness_goal&&!GOALS.includes(profile.fitness_goal))} onClick={()=>pickGoal("OTRO")} sx={{justifyContent:"flex-start",borderRadius:T.r}}/>
+        {(profile.fitness_goal==="OTRO"||(profile.fitness_goal&&!GOALS.includes(profile.fitness_goal)&&profile.fitness_goal!=="OTRO"))&&(
+          <input style={{...CC.inp,marginTop:4}} placeholder="Escribe tu objetivo (ej: preparar una maraton)" value={profile.fitness_goal==="OTRO"?(profile.custom_goal||""):(profile.custom_goal||profile.fitness_goal||"")} onChange={e=>setProfile({...profile,fitness_goal:"OTRO",custom_goal:e.target.value})}/>
+        )}
+        {goalChanged&&<p style={{fontSize:11,color:T.warn,marginTop:6,lineHeight:1.5}}>{"⚠️"} Cambiaste tu objetivo. Guarda y luego ve a "Rutina" para generar un nuevo plan acorde.</p>}
+        </div></div>
       <div style={CC.card}><h3 style={{fontSize:14,fontWeight:700,marginBottom:12}}>Nivel de actividad</h3><div style={{display:"flex",flexDirection:"column",gap:7}}>{LEVELS.map(l=><Chip key={l} label={l} active={profile.activity_level===l} onClick={()=>setProfile({...profile,activity_level:l})} sx={{justifyContent:"flex-start",borderRadius:T.r}}/>)}</div></div>
       <Btn ch={saved?"Guardado":"Guardar cambios"} onClick={save} sx={{marginBottom:10}} v={saved?"o":"p"}/>
       <Btn ch="Cerrar sesion" v="g" onClick={onLogout}/>
