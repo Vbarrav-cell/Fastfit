@@ -191,6 +191,7 @@ function missionProgress(uid,m){
 const AV_FACES=["\uD83D\uDE0E","\uD83D\uDCAA","\uD83E\uDD75","\uD83C\uDF1F","\u26A1","\uD83D\uDD25","\uD83D\uDE24","\uD83E\uDDBE","\uD83C\uDFC6","\uD83D\uDC51","\uD83D\uDC3A","\uD83E\uDD81"];
 const AV_COLORS=["#3457e8","#22c277","#e0921e","#a855f7","#e0455e","#22d3ee","#f43f5e","#eab308"];
 
+const T={bg:"#0a0a0c",surface:"#101013",card:"#16161a",border:"#26262c",borderSub:"#33333a",bright:"#3457e8",dim:"rgba(52,87,232,0.14)",glow:"rgba(52,87,232,0.3)",text:"#ededf0",sub:"#7c7c87",dimT:"#44444d",ok:"#22c277",err:"#e0455e",warn:"#e0921e",r:"10px",rLg:"14px",rFull:"999px"};
 const CC={card:{background:T.card,border:`1px solid ${T.border}`,borderRadius:T.rLg,padding:"18px 20px",marginBottom:10},lbl:{fontSize:10,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:T.sub,display:"block",marginBottom:6},inp:{padding:"12px 14px",fontSize:14,borderRadius:T.r,border:`1px solid ${T.border}`,background:T.card,color:T.text},mono:{fontFamily:"'Space Mono',monospace"}};
 
 function Logo({h=28}){
